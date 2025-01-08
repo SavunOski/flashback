@@ -2446,7 +2446,7 @@ app.get("/yt2009_recommended", (req, res) => {
         res.send("YT2009_NO_DATA")
         return;
     }
-    let disableOld = false;
+    let disableOld = true; //hehe
     if(req.headers.cookie
     && req.headers.cookie.includes("new_recommended")) {
         disableOld = true;
