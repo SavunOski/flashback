@@ -24,7 +24,7 @@ back/logs/
 back/tvdata.json
 back/androiddata.json
 back/mobilehelper_userdata.json
-
+.history/
 # yt assets
 master-vfl121679.png
 video_bar_arrows-vfl84478.png

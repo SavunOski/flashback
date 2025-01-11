@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package youtube;
+
+// Represents the entire response containing a list of activities.
+message ActivityListResponse {
+  string kind = 1;
+  string etag = 2;
+  repeated Activity items = 3;
+  PageInfo pageInfo = 4;
+}
+
+// Represents a single activity.
+message Activity {
+  string kind = 1;
+  string etag = 2;
+  string id = 3;
+  Snippet snippet = 4;
+  ContentDetails contentDetails = 5;
+}
+
+// Contains basic details about the activity.
+message Snippet {
+  string publishedAt = 1;
+  string channelId = 2;
+  string title = 3;
+  string description = 4;
+  map<string, Thumbnail> thumbnails = 5;
+  string channelTitle = 6;
+  string type = 7;
+}
+
+// Represents different thumbnail sizes.
+message Thumbnail {
+  string url = 1;
+  int32 width = 2;
+  int32 height = 3;
+}
+
+// Contains details about the content associated with the activity.
+message ContentDetails {
+  Upload upload = 1;
+}
+
+// Details specific to upload activities.
+message Upload {
+  string videoId = 1;
+}
+
+// Provides information about pagination in the response.
+message PageInfo {
+  int32 totalResults = 1;
+  int32 resultsPerPage = 2;
+}

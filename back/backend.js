@@ -38,6 +38,7 @@ const child_process = require("child_process")
 const yt2009charts = require("./yt2009charts")
 const yt2009gdataauths = require("./yt2009mobileauths")
 const yt2009basefeeds = require("./yt2009basefeeds")
+const { spawn } = require('child_process');
 let devTimings = false;
 const package = require("../package.json")
 const version = package.version;
@@ -48,6 +49,19 @@ const app = express();
 app.use(express.raw({
     "type": () => true
 }))
+
+
+
+// development onlyg
+app.use((req, res, next) => {
+    console.log(`Received ${req.method} request for ${req.originalUrl}`);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    next();
+});
+
+
+
 
 if(config.env == "dev") {
     let launchTime = ""
@@ -1238,6 +1252,41 @@ if(config.reencode_devs && typeof(config.reencode_devs) == "string") {
         }
     })
 }
+
+app.get('/youtube/v3/activities', (req, res) => {
+    const pythonProcess = spawn('python3', ['/home/ubuntu/flashbackDev/flashback/back/home.py']);
+
+    pythonProcess.stdin.write(JSON.stringify(req.body));
+    pythonProcess.stdin.end();
+
+    // let data = '';
+    // pythonProcess.stdout.on('data', (chunk) => {
+    //    data += chunk.toString();
+    // });
+
+    let chunks = [];
+    pythonProcess.stdout.on('data', (chunk) => {
+        chunks.push(chunk);
+    });
+    pythonProcess.stdout.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        res.set('Content-Type', 'application/x-protobuf');
+        res.send(buffer);
+    });
+
+    pythonProcess.stderr.on('data', (chunk) => {
+        console.error(`stderr: ${chunk}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            res.status(500).send('Error processing request');
+        }
+    });
+});
+
+
+
 function checkBaseline(req, res) {
     let tr = false;
     if(!req.headers["user-agent"]) return false;
@@ -2446,7 +2495,7 @@ app.get("/yt2009_recommended", (req, res) => {
         res.send("YT2009_NO_DATA")
         return;
     }
-    let disableOld = true; //hehe
+    let disableOld = false;
     if(req.headers.cookie
     && req.headers.cookie.includes("new_recommended")) {
         disableOld = true;
